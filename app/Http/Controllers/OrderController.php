@@ -122,14 +122,19 @@ class OrderController extends Controller
                 'updated_at' => now()
             ]);
         }
-        
+
+
+
+
         $order = Order::with('order_details', 'campaign')->find($order_id); //Sipariş bilgilerini çekiyoruz
-        if($order){
-            return response()->json([$order,'message' => 'The order has been successfully created.'], 200); //Sipariş bilgilerini döndürüyoruz
-        }else{
+        if ($order) {
+            foreach ($item as $key => $value) { //decrease stocks
+                DB::table('products')->where('id', $value['product_id'])->decrement('stock_quantity', $value['quantity']);
+            }
+            return response()->json([$order, 'message' => 'The order has been successfully created.'], 200); //Sipariş bilgilerini döndürüyoruz
+        } else {
             return response()->json(['message' => 'The order could not be created.'], 404);
         }
-        
     }
 
 
